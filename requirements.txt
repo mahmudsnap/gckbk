@@ -1,0 +1,5 @@
+flask>=2.3.0
+flask-cors>=4.0.0
+yt-dlp>=2024.0.0
+qrcode[pil]
+requests

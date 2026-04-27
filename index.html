@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>SnapYTube Ultimate</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+
+body {
+  font-family:'Cairo',sans-serif;
+  min-height:100vh;
+  background:#0a0012;
+  color:#fff;
+  overflow-x:hidden;
+}
+
+/* ═══ ANIMATED GRADIENT BG ═══ */
+.bg-orbs {
+  position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;
+}
+.orb {
+  position:absolute;border-radius:50%;filter:blur(80px);opacity:.35;
+  animation:float 8s ease-in-out infinite;
+}
+.orb-1{width:500px;height:500px;background:#7c3aed;top:-150px;right:-100px;animation-delay:0s;}
+.orb-2{width:400px;height:400px;background:#db2777;bottom:-100px;left:-80px;animation-delay:-3s;}
+.orb-3{width:300px;height:300px;background:#2563eb;top:40%;left:40%;animation-delay:-5s;}
+@keyframes float{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-30px) scale(1.05)}}
+
+/* ═══ NOISE OVERLAY ═══ */
+body::after{
+  content:'';position:fixed;inset:0;z-index:1;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");
+  opacity:.4;
+}
+
+/* ═══ LAYOUT ═══ */
+.wrap{position:relative;z-index:10;max-width:600px;margin:0 auto;padding:0 16px 60px;}
+
+/* ═══ HEADER ═══ */
+.top-bar {
+  position:sticky;top:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 0;
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(255,255,255,.06);
+  margin-bottom:36px;
+}
+.brand {
+  display:flex;align-items:center;gap:10px;
+}
+.brand-dot {
+  width:10px;height:10px;border-radius:50%;
+  background:linear-gradient(135deg,#a78bfa,#ec4899);
+  box-shadow:0 0 12px #a78bfa;
+  animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{box-shadow:0 0 12px #a78bfa}50%{box-shadow:0 0 24px #ec4899,0 0 40px #a78bfa}}
+.brand-name {
+  font-size:.95rem;font-weight:900;letter-spacing:.5px;
+  background:linear-gradient(90deg,#a78bfa,#ec4899,#a78bfa);
+  background-size:200%;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  animation:shimmer 4s linear infinite;
+}
+@keyframes shimmer{to{background-position:200% center}}
+
+.live-stats {
+  display:flex;gap:14px;
+}
+.ls-item{text-align:center;}
+.ls-num{font-size:.85rem;font-weight:700;color:#a78bfa;}
+.ls-lbl{font-size:.6rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:1px;}
+
+/* ═══ HERO ═══ */
+.hero {
+  text-align:center;
+  margin-bottom:40px;
+  animation:slideUp .7s cubic-bezier(.22,1,.36,1) both;
+}
+.hero-badge {
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(167,139,250,.12);
+  border:1px solid rgba(167,139,250,.25);
+  border-radius:99px;
+  padding:5px 14px;
+  font-size:.7rem;font-weight:600;color:#a78bfa;
+  letter-spacing:1px;text-transform:uppercase;
+  margin-bottom:18px;
+}
+.hero h1 {
+  font-size:clamp(1.8rem,6vw,2.6rem);
+  font-weight:900;line-height:1.15;
+  margin-bottom:12px;
+}
+.hero h1 em {
+  font-style:normal;
+  background:linear-gradient(135deg,#a78bfa 0%,#ec4899 50%,#f97316 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.hero p {
+  color:rgba(255,255,255,.45);font-size:.85rem;font-weight:300;
+  line-height:1.6;margin-bottom:22px;
+}
+
+/* ═══ PLATFORM CHIPS ═══ */
+.chips{display:flex;flex-wrap:wrap;justify-content:center;gap:7px;margin-bottom:0;}
+.chip {
+  display:flex;align-items:center;gap:5px;
+  padding:6px 13px;border-radius:99px;
+  font-size:.7rem;font-weight:700;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.04);
+  backdrop-filter:blur(8px);
+  transition:all .25s;cursor:default;
+}
+.chip:hover{background:rgba(255,255,255,.1);transform:translateY(-2px);}
+
+/* ═══ MAIN CARD ═══ */
+.glass-card {
+  background:rgba(255,255,255,.05);
+  backdrop-filter:blur(24px);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:24px;
+  padding:28px 22px;
+  margin-bottom:16px;
+  animation:slideUp .7s .1s cubic-bezier(.22,1,.36,1) both;
+  position:relative;overflow:hidden;
+}
+.glass-card::before{
+  content:'';position:absolute;
+  top:-1px;left:20%;right:20%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(167,139,250,.6),transparent);
+}
+
+.card-label {
+  font-size:.68rem;font-weight:700;letter-spacing:2px;
+  text-transform:uppercase;color:rgba(255,255,255,.3);
+  margin-bottom:14px;
+}
+
+/* ═══ INPUT ═══ */
+.field-wrap {
+  background:rgba(0,0,0,.3);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;
+  display:flex;align-items:center;
+  gap:0;
+  overflow:hidden;
+  transition:border-color .25s,box-shadow .25s;
+  margin-bottom:14px;
+}
+.field-wrap:focus-within {
+  border-color:rgba(167,139,250,.5);
+  box-shadow:0 0 0 3px rgba(167,139,250,.12);
+}
+.field-icon{
+  padding:0 14px;color:rgba(255,255,255,.25);font-size:.85rem;flex-shrink:0;
+}
+.url-input{
+  flex:1;background:transparent;border:none;outline:none;
+  color:#fff;font-size:.88rem;font-family:'Cairo',sans-serif;
+  padding:15px 0;min-width:0;
+}
+.url-input::placeholder{color:rgba(255,255,255,.2);}
+
+.btn-main {
+  width:100%;padding:15px;
+  background:linear-gradient(135deg,#7c3aed,#ec4899);
+  border:none;border-radius:14px;
+  color:#fff;font-size:.95rem;font-weight:700;
+  font-family:'Cairo',sans-serif;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  transition:opacity .2s,transform .15s,box-shadow .2s;
+  box-shadow:0 8px 32px rgba(124,58,237,.4);
+  letter-spacing:.3px;
+}
+.btn-main:hover{opacity:.9;box-shadow:0 8px 40px rgba(124,58,237,.6);}
+.btn-main:active{transform:scale(.98);}
+.btn-main:disabled{background:rgba(255,255,255,.1);box-shadow:none;cursor:not-allowed;color:rgba(255,255,255,.3);}
+
+/* ═══ PROGRESS BAR NEW ═══ */
+.progress-section {
+  margin-top: 16px;
+  display: none;
+}
+.progress-bar-container {
+  background: rgba(0,0,0,0.4);
+  border-radius: 99px;
+  height: 8px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.progress-bar-fill {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, #a78bfa, #ec4899);
+  border-radius: 99px;
+  transition: width 0.3s ease;
+  position: relative;
+}
+.progress-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 60px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  animation: shine 1.5s infinite;
+}
+@keyframes shine {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(400%); }
+}
+.progress-stats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.5);
+}
+.progress-percent {
+  color: #a78bfa;
+  font-weight: 700;
+}
+.progress-speed i, .progress-eta i {
+  font-size: 0.6rem;
+  margin-left: 3px;
+}
+
+/* ═══ STATUS ═══ */
+#status-box{
+  margin-top:14px;padding:13px 16px;border-radius:14px;
+  font-size:.83rem;display:none;align-items:center;gap:10px;
+}
+#status-box.loading{background:rgba(167,139,250,.08);border:1px solid rgba(167,139,250,.2);color:#c4b5fd;display:flex;}
+#status-box.success{background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.2);color:#86efac;display:flex;}
+#status-box.error{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);color:#fca5a5;display:flex;}
+
+/* ═══ RESULT ═══ */
+#result-box{
+  margin-top:14px;
+  background:rgba(0,0,0,.25);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;padding:16px;
+  display:none;animation:slideUp .35s ease;
+}
+.result-thumb{width:100%;max-height:160px;object-fit:cover;border-radius:10px;margin-bottom:12px;display:none;}
+.result-vid-title{font-size:.88rem;font-weight:700;margin-bottom:10px;line-height:1.4;color:rgba(255,255,255,.9);}
+.result-pills{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px;}
+.rpill{
+  display:flex;align-items:center;gap:5px;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+  padding:4px 11px;border-radius:99px;font-size:.7rem;color:rgba(255,255,255,.55);
+}
+.rpill i{font-size:.65rem;color:#a78bfa;}
+
+.btn-save {
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  width:100%;padding:14px;
+  background:linear-gradient(135deg,rgba(34,197,94,.15),rgba(21,128,61,.15));
+  border:1.5px solid rgba(34,197,94,.3);border-radius:13px;
+  color:#86efac;font-size:.9rem;font-weight:700;
+  font-family:'Cairo',sans-serif;text-decoration:none;
+  transition:all .2s;
+  cursor:pointer;
+}
+.btn-save:hover{background:linear-gradient(135deg,rgba(34,197,94,.25),rgba(21,128,61,.25));border-color:rgba(34,197,94,.5);}
+.btn-save:disabled{opacity:0.5;cursor:not-allowed;}
+
+/* ═══ STATS CARDS ═══ */
+.stats-row{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
+  margin-bottom:16px;
+  animation:slideUp .7s .2s cubic-bezier(.22,1,.36,1) both;
+}
+.sc{
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.07);
+  backdrop-filter:blur(16px);
+  border-radius:18px;padding:18px 10px;text-align:center;
+  transition:all .25s;
+}
+.sc:hover{background:rgba(167,139,250,.08);border-color:rgba(167,139,250,.2);}
+.sc-num{font-size:1.4rem;font-weight:900;margin-bottom:4px;
+  background:linear-gradient(135deg,#a78bfa,#ec4899);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.sc-lbl{font-size:.6rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:1.5px;}
+
+/* ═══ HISTORY ═══ */
+.hist-card{
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.07);
+  backdrop-filter:blur(16px);
+  border-radius:24px;padding:22px 18px;
+  animation:slideUp .7s .3s cubic-bezier(.22,1,.36,1) both;
+}
+.section-hd{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:16px;
+}
+.section-hd h3{font-size:.8rem;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1.5px;}
+.section-hd span{font-size:.7rem;color:#a78bfa;}
+
+#history-list{display:flex;flex-direction:column;gap:8px;}
+.h-row{
+  display:flex;align-items:center;gap:12px;
+  background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.06);
+  border-radius:14px;padding:12px 13px;
+  transition:border-color .2s,background .2s;
+}
+.h-row:hover{background:rgba(167,139,250,.06);border-color:rgba(167,139,250,.2);}
+.h-ico{
+  width:36px;height:36px;border-radius:10px;flex-shrink:0;
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);
+  display:flex;align-items:center;justify-content:center;font-size:.85rem;
+}
+.h-body{flex:1;min-width:0;}
+.h-nm{font-size:.8rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:rgba(255,255,255,.85);}
+.h-sz{font-size:.67rem;color:rgba(255,255,255,.3);margin-top:2px;}
+.h-btn{
+  flex-shrink:0;padding:7px 13px;
+  background:linear-gradient(135deg,#7c3aed,#ec4899);
+  border:none;border-radius:9px;
+  color:#fff;font-size:.72rem;font-weight:700;
+  font-family:'Cairo',sans-serif;text-decoration:none;
+  display:flex;align-items:center;gap:5px;
+  transition:opacity .2s,transform .1s;
+}
+.h-btn:hover{opacity:.85;transform:scale(.97);}
+
+.empty{text-align:center;padding:30px;color:rgba(255,255,255,.2);}
+.empty i{font-size:2rem;display:block;margin-bottom:10px;}
+.empty p{font-size:.8rem;}
+
+/* ═══ SPINNER ═══ */
+.spin{
+  width:15px;height:15px;flex-shrink:0;
+  border:2px solid rgba(255,255,255,.1);
+  border-top-color:currentColor;border-radius:50%;
+  animation:rot .7s linear infinite;
+}
+@keyframes rot{to{transform:rotate(360deg)}}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+footer{
+  position:relative;z-index:10;text-align:center;
+  padding:20px;font-size:.68rem;color:rgba(255,255,255,.15);
+  border-top:1px solid rgba(255,255,255,.05);margin-top:10px;
+}
+</style>
+</head>
+<body>
+
+<div class="bg-orbs">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+
+<div class="wrap">
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="brand">
+      <div class="brand-dot"></div>
+      <span class="brand-name">SnapYTube Ultimate</span>
+    </div>
+    <div class="live-stats">
+      <div class="ls-item"><div class="ls-num" id="hs-total">0</div><div class="ls-lbl">إجمالي</div></div>
+      <div class="ls-item"><div class="ls-num" id="hs-today">0</div><div class="ls-lbl">اليوم</div></div>
+      <div class="ls-item"><div class="ls-num" id="hs-size">0</div><div class="ls-lbl">MB</div></div>
+    </div>
+  </div>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-badge"><i class="fas fa-bolt"></i> منصة التحميل المتقدمة</div>
+    <h1>حمّل أي فيديو<br/><em>بجودة عالية</em></h1>
+    <p>يوتيوب · تيك توك · انستقرام · فيسبوك · تويتر<br/>بسرعة وبدون تسجيل دخول</p>
+    <div class="chips">
+      <span class="chip" style="color:#ff4444"><i class="fab fa-youtube"></i>YouTube</span>
+      <span class="chip" style="color:#fff"><i class="fab fa-tiktok"></i>TikTok</span>
+      <span class="chip" style="color:#e1306c"><i class="fab fa-instagram"></i>Instagram</span>
+      <span class="chip" style="color:#1877f2"><i class="fab fa-facebook"></i>Facebook</span>
+      <span class="chip" style="color:#1da1f2"><i class="fab fa-twitter"></i>Twitter</span>
+      <span class="chip" style="color:#00d4ff"><i class="fas fa-cut"></i>CapCut</span>
+    </div>
+  </div>
+
+  <!-- Download Card -->
+  <div class="glass-card">
+    <div class="card-label">رابط الفيديو</div>
+    <div class="field-wrap">
+      <span class="field-icon"><i class="fas fa-link"></i></span>
+      <input class="url-input" id="url-input" type="url"
+             placeholder="الصق الرابط هنا..." autocomplete="off"/>
+    </div>
+    <button class="btn-main" id="dl-btn" onclick="startDownloadWithProgress()">
+      <i class="fas fa-cloud-arrow-down"></i>
+      تحميل الفيديو
+    </button>
+
+    <!-- شريط التقدم -->
+    <div id="progress-section" class="progress-section">
+      <div class="progress-bar-container">
+        <div class="progress-bar-fill" id="progress-fill"></div>
+      </div>
+      <div class="progress-stats">
+        <span class="progress-percent" id="progress-percent">0%</span>
+        <span class="progress-speed" id="progress-speed"><i class="fas fa-tachometer-alt"></i> 0 MB/s</span>
+        <span class="progress-eta" id="progress-eta"><i class="fas fa-hourglass-half"></i> ?</span>
+      </div>
+    </div>
+
+    <div id="status-box">
+      <div class="spin" id="spin"></div>
+      <span id="status-txt"></span>
+    </div>
+
+    <div id="result-box">
+      <img id="result-thumb" class="result-thumb" src="" alt=""/>
+      <div class="result-vid-title" id="result-title"></div>
+      <div class="result-pills" id="result-meta"></div>
+      <button class="btn-save" id="save-btn">
+        <i class="fas fa-mobile-screen-button"></i>
+        <span id="save-btn-text">احفظ على الهاتف</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="sc"><div class="sc-num" id="s-total">0</div><div class="sc-lbl">إجمالي</div></div>
+    <div class="sc"><div class="sc-num" id="s-today">0</div><div class="sc-lbl">اليوم</div></div>
+    <div class="sc"><div class="sc-num" id="s-size">0</div><div class="sc-lbl">MB محفوظ</div></div>
+  </div>
+
+  <!-- History -->
+  <div class="hist-card">
+    <div class="section-hd">
+      <h3><i class="fas fa-clock-rotate-left"></i> آخر التحميلات</h3>
+      <span id="vid-count"></span>
+    </div>
+    <div id="history-list">
+      <div class="empty"><i class="fas fa-inbox"></i><p>لا يوجد تحميلات بعد</p></div>
+    </div>
+  </div>
+</div>
+
+<footer>SnapYTube Ultimate v4.0 · للاستخدام الشخصي فقط</footer>
+
+<script>
+const IC = {
+  youtube:   {i:'fab fa-youtube',   c:'#ff4444'},
+  tiktok:    {i:'fab fa-tiktok',    c:'#fff'},
+  instagram: {i:'fab fa-instagram', c:'#e1306c'},
+  facebook:  {i:'fab fa-facebook',  c:'#1877f2'},
+  twitter:   {i:'fab fa-twitter',   c:'#1da1f2'},
+  capcut:    {i:'fas fa-cut',       c:'#00d4ff'},
+  vimeo:     {i:'fab fa-vimeo',     c:'#1ab7ea'},
+  other:     {i:'fas fa-globe',     c:'#a78bfa'},
+};
+
+let currentDownloadData = null;
+
+async function startDownloadWithProgress() {
+  const url = document.getElementById('url-input').value.trim();
+  if (!url) { setStatus('error','أدخل رابطاً أولاً'); return; }
+  
+  const btn = document.getElementById('dl-btn');
+  btn.disabled = true;
+  
+  // إخفاء نتيجة سابقة
+  document.getElementById('result-box').style.display = 'none';
+  currentDownloadData = null;
+  
+  // إظهار وإعادة تعيين شريط التقدم
+  const progressSection = document.getElementById('progress-section');
+  progressSection.style.display = 'block';
+  document.getElementById('progress-fill').style.width = '0%';
+  document.getElementById('progress-percent').innerText = '0%';
+  document.getElementById('progress-speed').innerHTML = '<i class="fas fa-tachometer-alt"></i> 0 MB/s';
+  document.getElementById('progress-eta').innerHTML = '<i class="fas fa-hourglass-half"></i> ?';
+  
+  setStatus('loading','جاري الاتصال بالسيرفر...');
+  
+  try {
+    const response = await fetch('/api/download/progress', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: url })
+    });
+    
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n\n');
+      buffer = lines.pop();
+      
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          try {
+            const data = JSON.parse(line.slice(6));
+            
+            if (data.type === 'progress') {
+              const p = data.data;
+              updateProgressUI(p);
+              
+              if (p.status === 'downloading') {
+                setStatus('loading', `جاري التحميل... ${p.percent}%`);
+              } else if (p.status === 'processing') {
+                setStatus('loading', '⚙️ جاري معالجة الفيديو ودمج الصوت...');
+              }
+              
+            } else if (data.type === 'complete') {
+              if (data.data.success) {
+                setStatus('success', data.data.message || '✅ تم التحميل بنجاح!');
+                currentDownloadData = data.data;
+                showResult(data.data);
+                loadData();
+              } else {
+                setStatus('error', data.data.error || 'فشل التحميل');
+              }
+              
+              setTimeout(() => {
+                document.getElementById('progress-section').style.display = 'none';
+              }, 1000);
+              break;
+            }
+          } catch (e) {
+            console.error('Parse error:', e);
+          }
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Fetch error:', error);
+    setStatus('error', 'حدث خطأ في الاتصال بالسيرفر');
+    document.getElementById('progress-section').style.display = 'none';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function updateProgressUI(progress) {
+  const percent = progress.percent || 0;
+  document.getElementById('progress-fill').style.width = percent + '%';
+  document.getElementById('progress-percent').innerText = percent + '%';
+  
+  if (progress.speed) {
+    document.getElementById('progress-speed').innerHTML = `<i class="fas fa-tachometer-alt"></i> ${progress.speed} MB/s`;
+  }
+  if (progress.eta && progress.eta !== '?') {
+    document.getElementById('progress-eta').innerHTML = `<i class="fas fa-hourglass-half"></i> ${progress.eta}`;
+  }
+}
+
+function setStatus(type, msg) {
+  const b = document.getElementById('status-box');
+  document.getElementById('status-txt').textContent = msg;
+  const spin = document.getElementById('spin');
+  if (spin) spin.style.display = type === 'loading' ? 'block' : 'none';
+  b.className = type;
+}
+
+function showResult(data) {
+  const th = document.getElementById('result-thumb');
+  document.getElementById('result-title').textContent = data.title || data.filename;
+  
+  if (data.thumbnail) { 
+    th.src = data.thumbnail; 
+    th.style.display = 'block'; 
+    th.onerror = () => { th.style.display = 'none'; }; 
+  } else {
+    th.style.display = 'none';
+  }
+  
+  const p = IC[data.platform] || IC.other;
+  document.getElementById('result-meta').innerHTML =
+    `<span class="rpill"><i class="${p.i}" style="color:${p.c}"></i>${data.platform || 'other'}</span>
+     <span class="rpill"><i class="fas fa-hdd"></i>${data.filesize_mb || '?'} MB</span>
+     ${data.duration ? `<span class="rpill"><i class="fas fa-clock"></i>${formatDuration(data.duration)}</span>` : ''}
+     ${data.quality ? `<span class="rpill"><i class="fas fa-tv"></i>${data.quality}</span>` : ''}`;
+  
+  // ⭐⭐⭐ إعداد زر الحفظ مع التحقق من جاهزية الملف ⭐⭐⭐
+  const sb = document.getElementById('save-btn');
+  const saveBtnText = document.getElementById('save-btn-text');
+  const downloadUrl = data.download_url || `/api/video/${encodeURIComponent(data.filename)}`;
+  
+  sb.onclick = async (e) => {
+    e.preventDefault();
+    
+    // تعطيل الزر مؤقتاً
+    sb.disabled = true;
+    sb.style.opacity = '0.7';
+    const originalText = saveBtnText.textContent;
+    saveBtnText.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التجهيز...';
+    
+    // انتظر 1.5 ثانية لتجهيز الملف
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    // التحقق من وجود الملف
+    let fileReady = false;
+    let retries = 0;
+    
+    while (!fileReady && retries < 5) {
+      try {
+        const response = await fetch(downloadUrl, { method: 'HEAD' });
+        if (response.ok) {
+          fileReady = true;
+          break;
+        }
+      } catch (err) {
+        console.log(`⏳ محاولة ${retries + 1}/5 - انتظار تجهيز الملف...`);
+      }
+      retries++;
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+    
+    if (fileReady) {
+      // الملف جاهز - تحميل مباشر
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+      a.download = data.filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      
+      saveBtnText.textContent = originalText;
+      sb.disabled = false;
+      sb.style.opacity = '1';
+      setStatus('success', '✅ بدأ التحميل! الملف موجود في مجلد SnapYTube بالمعرض');
+    } else {
+      // فتح في نافذة جديدة
+      window.open(downloadUrl, '_blank');
+      
+      saveBtnText.textContent = originalText;
+      sb.disabled = false;
+      sb.style.opacity = '1';
+      setStatus('success', '✅ الملف موجود في مجلد SnapYTube بالمعرض');
+    }
+  };
+  
+  document.getElementById('result-box').style.display = 'block';
+}
+
+function formatDuration(seconds) {
+  if (!seconds) return '0:00';
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins}:${String(secs).padStart(2,'0')}`;
+}
+
+async function loadData() {
+  try {
+    const [sr, vr] = await Promise.all([fetch('/api/stats'), fetch('/api/videos')]);
+    const sd = await sr.json(), vd = await vr.json();
+    
+    if (sd.status === 'success') {
+      ['total','today'].forEach(k => {
+        const el = document.getElementById('s-'+k);
+        if (el) el.textContent = sd[k] ?? 0;
+        const hsel = document.getElementById('hs-'+k);
+        if (hsel) hsel.textContent = sd[k] ?? 0;
+      });
+      const sizeEl = document.getElementById('s-size');
+      if (sizeEl) sizeEl.textContent = sd.total_size_mb ?? 0;
+      const hsSizeEl = document.getElementById('hs-size');
+      if (hsSizeEl) hsSizeEl.textContent = sd.total_size_mb ?? 0;
+    }
+    
+    const list = document.getElementById('history-list');
+    if (vd.videos?.length) {
+      const countEl = document.getElementById('vid-count');
+      if (countEl) countEl.textContent = vd.count + ' ملف';
+      
+      list.innerHTML = vd.videos.slice(0,20).map(v => {
+        const ext = v.name.split('.').pop();
+        const pi = IC[guessPlatform(v.name)] || {i:'fas fa-film', c:'#a78bfa'};
+        return `<div class="h-row">
+          <div class="h-ico"><i class="${pi.i}" style="color:${pi.c}"></i></div>
+          <div class="h-body">
+            <div class="h-nm">${escapeHtml(v.name)}</div>
+            <div class="h-sz">${v.size_mb} MB · .${ext}</div>
+          </div>
+          <a class="h-btn" href="${v.url}" download="${escapeHtml(v.name)}"><i class="fas fa-download"></i>حفظ</a>
+        </div>`;
+      }).join('');
+    } else {
+      list.innerHTML = '<div class="empty"><i class="fas fa-inbox"></i><p>لا يوجد تحميلات بعد</p></div>';
+    }
+  } catch(e) {
+    console.error('loadData error:', e);
+  }
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function guessPlatform(filename) {
+  const n = filename.toLowerCase();
+  if (n.includes('youtube') || n.includes('yt')) return 'youtube';
+  if (n.includes('tiktok')) return 'tiktok';
+  if (n.includes('instagram')) return 'instagram';
+  if (n.includes('facebook')) return 'facebook';
+  if (n.includes('twitter')) return 'twitter';
+  return 'other';
+}
+
+// Enter key support
+document.getElementById('url-input').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') startDownloadWithProgress();
+});
+
+// تحميل البيانات عند فتح الصفحة
+loadData();
+
+// تحديث كل 30 ثانية
+setInterval(loadData, 30000);
+</script>
+</body>
+</html>
